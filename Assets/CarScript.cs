@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 
 public class CarScript : MonoBehaviour
-{
+{   //Car Class
     public class Car
     {
         private int year;
@@ -38,28 +38,23 @@ public class CarScript : MonoBehaviour
             get { return currentSpeed; }
         }
 
-
+        //Adds acceleration to the car
         public void Accel()
         {
             currentSpeed += .1f;
 
         }
-
+        //Decelerates the car
         public void Decel()
         {
             currentSpeed -= .1f;
         }
-
-        public void ReadCar()
-        {
-            Debug.Log(Year + " " + Make);
-        }
-
+        //Overflow negator
         public void Hundred()
         {
             currentSpeed = maxSpeed;
         }
-
+        //Underflow negator
         public void Zero()
         {
             currentSpeed = minSpeed;
@@ -67,14 +62,20 @@ public class CarScript : MonoBehaviour
 
     }
 
-
+    //Variables
     [SerializeField] Car car = new Car();
     [SerializeField] TMP_Text cSpeed;
     [SerializeField] TMP_Text cYearMake;
+    [SerializeField] TMP_Text cGameYM;
     [SerializeField] int inputYear;
     [SerializeField] GameObject menuCar;
     [SerializeField] GameObject gameHolder;
     [SerializeField] GameObject menuHolder;
+    [SerializeField] GameObject carOBJ;
+    [SerializeField] GameObject failText;
+    [SerializeField] GameObject sFail;
+    GameObject carRef;
+    CarVars carRefScript;
     bool makeBool;
     bool yearBool;
     bool canPlay;
@@ -88,6 +89,8 @@ public class CarScript : MonoBehaviour
         makeBool = false;
         gameHolder.SetActive(false);
         menuHolder.SetActive(true);
+        failText.SetActive(false);
+        sFail.SetActive(false);
     }
 
     void Update()
@@ -95,55 +98,60 @@ public class CarScript : MonoBehaviour
         if(Input.GetKey(KeyCode.UpArrow) && car.CurrentSpeed < 100f && canPlay)
         {
             car.Accel();
+            cSpeed.text = car.CurrentSpeed.ToString("0") + " MPH";
 
-            
+
 
         }
         if(Input.GetKey(KeyCode.DownArrow) && car.CurrentSpeed > 0 && canPlay)
         {
             car.Decel();
+            cSpeed.text = car.CurrentSpeed.ToString("0") + " MPH";
 
 
         }
         if(car.CurrentSpeed > 100)
         {
             car.Hundred();
+            cSpeed.text = car.CurrentSpeed.ToString("0") + " MPH";
         }
         if (car.CurrentSpeed < 0)
         {
             car.Zero();
+            cSpeed.text = car.CurrentSpeed.ToString("0") + " MPH";
         }
         if(yearBool && makeBool)
         {
             canPlay = true;
-            menuHolder.SetActive(false);
-            gameHolder.SetActive(true);
+            
         }
         menuCar.transform.Rotate(0, .1f, 0);
         
-        cSpeed.text = car.CurrentSpeed.ToString("0") + " MPH";
+        
     }
 
-
+    //Detects if the Year value changes
     public void OnChangeYear(string input)
     {
         int.TryParse(input, out inputYear);
-        if(1886 < inputYear && inputYear < 2025)
+        if(1885 < inputYear && inputYear < 2025)
         {
             car.Year = inputYear;
             Debug.Log("This Year is Correct");
             Debug.Log(car.Year);
             yearBool = true;
             cYearMake.text = car.Year.ToString() + " " + car.Make;
+            failText.SetActive(false);
         }
         else
         {
             Debug.Log("This Year Aint Right >:(");
+            failText.SetActive(true);
             yearBool= false;
         }
 
     }
-
+    //Detects if the Make value changes
     public void OnChangeMake(string input)
     {
         car.Make = input;
@@ -153,36 +161,25 @@ public class CarScript : MonoBehaviour
             cYearMake.text = car.Year.ToString() + " " + car.Make;
         }
     }
-
-    public void ChangeYear()
-    {
-        /*int newYear = Random.Range(1885, 2024);
-        car.Year = newYear;
-        Debug.Log(newYear);
-        car.Make = "Bolksbagen";*/
-        Debug.Log(car.Year + " " + car.Make);
-        cYearMake.text = car.Year.ToString() + " " + car.Make;
-    }
-
+    //Code for the start button
     public void StartButton()
     {
-        if(makeBool && yearBool)
+        if(canPlay)
         {
-            Debug.Log("Game Would have Started");
+            cGameYM.text = car.Year.ToString() + " " + car.Make;
+            carRef = Instantiate(carOBJ);
+            menuHolder.SetActive(false);
+            gameHolder.SetActive(true);
+            carRefScript = carRef.GetComponent<CarVars>();
+            carRefScript.make = car.Make;
+            carRefScript.year = car.Year;
+            cSpeed.text = "0 MPH";
         }
         else
         {
-            Debug.Log("No can do sweetheart");
+            sFail.SetActive(true);
         }
     }
-
-    /*public IEnumerator DelaySeconds(int i)
-    {
-        if(i == 1)
-        {
-            yield return new WaitForSeconds(.25f);
-        }
-    }*/
 
 
 }
