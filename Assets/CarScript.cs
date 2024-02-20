@@ -16,7 +16,7 @@ public class CarScript : MonoBehaviour
         public int Year
         {
             get { 
-                return 2004;
+                return year;
             }
             set{
                 year = value;
@@ -26,7 +26,7 @@ public class CarScript : MonoBehaviour
         public string Make
         {
             get { 
-                return "one of the cars of all time";
+                return make;
             }
             set{
                 make = value;
@@ -57,12 +57,12 @@ public class CarScript : MonoBehaviour
 
         public void Hundred()
         {
-            currentSpeed = 100;
+            currentSpeed = maxSpeed;
         }
 
         public void Zero()
         {
-            currentSpeed = 0;
+            currentSpeed = minSpeed;
         }
 
     }
@@ -70,22 +70,36 @@ public class CarScript : MonoBehaviour
 
     [SerializeField] Car car = new Car();
     [SerializeField] TMP_Text cSpeed;
+    [SerializeField] TMP_Text cYearMake;
+    [SerializeField] int inputYear;
+    [SerializeField] GameObject menuCar;
+    [SerializeField] GameObject gameHolder;
+    [SerializeField] GameObject menuHolder;
+    bool makeBool;
+    bool yearBool;
+    bool canPlay;
+
 
     void Start()
     {
-        car.ReadCar();
+        cYearMake.text = "";
+        canPlay = false;
+        yearBool = false;
+        makeBool = false;
+        gameHolder.SetActive(false);
+        menuHolder.SetActive(true);
     }
 
     void Update()
     {
-        if(Input.GetKey(KeyCode.UpArrow) && car.CurrentSpeed < 100f)
+        if(Input.GetKey(KeyCode.UpArrow) && car.CurrentSpeed < 100f && canPlay)
         {
             car.Accel();
 
             
 
         }
-        if(Input.GetKey(KeyCode.DownArrow) && car.CurrentSpeed > 0)
+        if(Input.GetKey(KeyCode.DownArrow) && car.CurrentSpeed > 0 && canPlay)
         {
             car.Decel();
 
@@ -99,30 +113,67 @@ public class CarScript : MonoBehaviour
         {
             car.Zero();
         }
+        if(yearBool && makeBool)
+        {
+            canPlay = true;
+            menuHolder.SetActive(false);
+            gameHolder.SetActive(true);
+        }
+        menuCar.transform.Rotate(0, .1f, 0);
         
-        cSpeed.text = car.CurrentSpeed.ToString("0");
+        cSpeed.text = car.CurrentSpeed.ToString("0") + " MPH";
     }
 
 
-    public void OnChangeYear(int inputYear)
+    public void OnChangeYear(string input)
     {
-        if(1886 < inputYear && inputYear < 2024)
+        int.TryParse(input, out inputYear);
+        if(1886 < inputYear && inputYear < 2025)
         {
             car.Year = inputYear;
             Debug.Log("This Year is Correct");
+            Debug.Log(car.Year);
+            yearBool = true;
+            cYearMake.text = car.Year.ToString() + " " + car.Make;
         }
         else
         {
             Debug.Log("This Year Aint Right >:(");
+            yearBool= false;
         }
 
     }
 
+    public void OnChangeMake(string input)
+    {
+        car.Make = input;
+        if(input != null)
+        {
+            makeBool = true;
+            cYearMake.text = car.Year.ToString() + " " + car.Make;
+        }
+    }
+
     public void ChangeYear()
     {
-        car.Year = 2007;
-        car.Make = "Bolksbagen";
+        /*int newYear = Random.Range(1885, 2024);
+        car.Year = newYear;
+        Debug.Log(newYear);
+        car.Make = "Bolksbagen";*/
         Debug.Log(car.Year + " " + car.Make);
+        cYearMake.text = car.Year.ToString() + " " + car.Make;
+    }
+
+    public void StartButton()
+    {
+        if(makeBool && yearBool)
+        {
+            Debug.Log("Game Would have Started");
+        }
+        else
+        {
+            Debug.Log("No can do sweetheart");
+        }
     }
 
     /*public IEnumerator DelaySeconds(int i)
